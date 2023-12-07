@@ -1,0 +1,3 @@
+[submodule "dependencies/msdf-atlas-gen"]
+	path = dependencies/msdf-atlas-gen
+	url = https://github.com/Chlumsky/msdf-atlas-gen.git
