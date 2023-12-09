@@ -86,10 +86,20 @@ namespace core
                     m_ShouldClose = true;
                     break;
                 }
-                case SDL_WINDOWEVENT_RESIZED: {
-                    SDL_GetWindowSize(m_Window,&m_props.w,&m_props.h);
-                    glViewport(0,0,m_props.w,m_props.h);
-                }
+               case SDL_WINDOWEVENT: {
+                   switch (e.window.event)
+                   {
+                       case SDL_WINDOWEVENT_RESIZED:{
+                               SDL_GetWindowSize(m_Window,&m_props.w,&m_props.h);
+                               glViewport(0,0,m_props.w,m_props.h);
+                           break;
+                       }
+                       default:
+                           break;
+                   }
+               	break;  
+               }
+
                 default:
                     break;
             }
