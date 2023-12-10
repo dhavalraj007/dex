@@ -11,7 +11,7 @@ void TextData::render() {
   glDrawArrays(GL_TRIANGLES, 0, vertexData.size());
 }
 
-TextData::TextData() : fontSize(0.5), scaledLineHeight(0) {
+TextData::TextData() : fontSize(30), scaledLineHeight(0) {
   const int defaultNumVerts = 10000;
   vertexData.reserve(defaultNumVerts);
   glGenBuffers(1, &vboId);
@@ -37,7 +37,7 @@ void TextData::genRenderData(Font &font) {
   const double fontScale = 1.0 / maxSize;
 
   // for screen translation/scaling (this will be used by model matrix)
-  double fontSize = 0.5;
+
   scaledLineHeight =
       (fontScale * fontSize * font.fontGeometry.getMetrics().lineHeight);
   double x = 0;

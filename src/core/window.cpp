@@ -12,8 +12,8 @@ namespace core
 		title = "My Window!";
 		x = SDL_WINDOWPOS_CENTERED;
 		y = SDL_WINDOWPOS_CENTERED;
-        aspectRatio = 16.0f / 9.0f;
-		w = 1024;
+		aspectRatio = 16.0f / 9.0f;
+		w = 1800;
 		h = w*(1/aspectRatio);
 		wMin = 320;
 		hMin = wMin*(1/aspectRatio);
@@ -82,6 +82,13 @@ namespace core
          SDL_Event e;
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
+	    case SDL_KEYDOWN:{
+	      if(e.key.keysym.sym==SDLK_ESCAPE)
+		{
+		  m_ShouldClose = true;
+		}
+	      break;
+	    }
                 case SDL_QUIT: {
                     m_ShouldClose = true;
                     break;
@@ -91,6 +98,7 @@ namespace core
                    {
                        case SDL_WINDOWEVENT_RESIZED:{
                                SDL_GetWindowSize(m_Window,&m_props.w,&m_props.h);
+			       m_props.aspectRatio = float(m_props.w)/m_props.h;
                                glViewport(0,0,m_props.w,m_props.h);
                            break;
                        }
