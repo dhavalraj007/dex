@@ -1,4 +1,3 @@
-
 #include <filesystem>
 #include <format>
 #include <iostream>
@@ -20,10 +19,11 @@
 #include "texture.h"
 
 int main() {
+
   core::Window window;
 
   window.create(core::WindowProperties());
-  window.setClearColor(glm::vec4(0.0f));
+  //  window.setClearColor(glm::vec4(0.0f));
 
   input::Mouse::Init();
   input::Keyboard::Init();
@@ -31,20 +31,20 @@ int main() {
   Shader shader("../src/shaders/FontVertex.glsl",
                 "../src/shaders/FontFragmentShader.glsl");
 
-  Font font(R"(C:\Windows\Fonts\verdana.ttf)");
+  Font font("/usr/share/fonts/dejavu-sans-mono-fonts/DejaVuSansMono-Bold.ttf");
 
   TextData textData;
   textData.setText("I am gonna be \n king of the pirates.");
   textData.genRenderData(font);
 
-  float width = 16.f;
-  auto orthoMat =
-      glm::ortho(0.f, width, 0.f, width * (1 / window.getProps().aspectRatio));
+  auto orthoMat = glm::ortho(0.f, float(window.getProps().w), 0.f,
+                             float(window.getProps().h));
 
-  glm::mat4 modelMat = glm::mat4(1.0f);
+  auto modelMat = glm::mat4(1.0f);
   modelMat = glm::translate(
-      modelMat, glm::vec3{0.f, // translation vector
-                          9.0f - textData.getScaledLineHeight(), 0.f});
+      modelMat,
+      glm::vec3{0.f, // translation vector
+                window.getProps().h - textData.getScaledLineHeight(), 0.f});
   modelMat = glm::scale(modelMat,
                         glm::vec3(textData.fontSize, textData.fontSize, 1.0f));
 
@@ -54,19 +54,41 @@ int main() {
 
   while (!window.m_ShouldClose) {
     // poll window events
-    window.pollEvents([&window, &textData, &font](SDL_Event e) {
+    window.pollEvents([&window, &textData, &font, &shader](SDL_Event e) {
       switch (e.type) {
       case SDL_KEYDOWN: {
         if (SDL_KeyCode::SDLK_RETURN <= e.key.keysym.sym and
             e.key.keysym.sym <= SDL_KeyCode::SDLK_z) {
-          textData.appendChar(e.key.keysym.sym);// 0 1 2 3 4 5
-          textData.updateRenderDataStartingFrom(font,textData.textBuffer.size()-1);
+          textData.appendChar(e.key.keysym.sym); // 0 1 2 3 4 5
+          textData.updateRenderDataStartingFrom(font,
+                                                textData.textBuffer.size() - 1);
+          //  textData.genRenderData(font);
+        }
+        break;
+      }
+      case SDL_WINDOWEVENT: {
+        switch (e.window.event) {
+        case SDL_WINDOWEVENT_RESIZED: {
+          auto orthoMat = glm::ortho(0.f, float(window.getProps().w), 0.f,
+                                     float(window.getProps().h));
+          auto modelMat = glm::mat4(1.0f);
+          modelMat = glm::translate(
+              modelMat,
+              glm::vec3{0.f, // translation vector
+                        window.getProps().h - textData.getScaledLineHeight(),
+                        0.f});
+          modelMat = glm::scale(
+              modelMat, glm::vec3(textData.fontSize, textData.fontSize, 1.0f));
+          shader.setUniformMat4("orthoMat", orthoMat);
+          shader.setUniformMat4("modelMat", modelMat);
+
+          break;
+        }
         }
         break;
       }
       }
     });
-
     window.clearScreen();
     input::Mouse::Update();
     input::Keyboard::Update();

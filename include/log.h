@@ -13,14 +13,14 @@
 template<typename... T>
 void LOG(std::format_string<T...> fmt,T&&... args)
 {
-    std::cout<<std::format(fmt,std::forward<T>(args)...);
+  std::cout<<std::format(fmt,std::forward<T>(args)...)<<std::endl;
 }
 
 template<typename... T>
 void ASSERT(bool val,std::format_string<T...> fmt,const T&&... args)
 {
     if(!val)
-        std::cout<<std::format(fmt,args...);
+      std::cout<<std::format(fmt,args...)<<std::endl;
 }
 
 #endif //DEEX_LOG_H
