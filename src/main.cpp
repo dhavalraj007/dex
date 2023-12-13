@@ -31,7 +31,7 @@ int main() {
   Shader shader("../src/shaders/FontVertex.glsl",
                 "../src/shaders/FontFragmentShader.glsl");
 
-  Font font("/usr/share/fonts/dejavu-sans-mono-fonts/DejaVuSansMono-Bold.ttf");
+  Font font("/usr/share/fonts/truetype/tlwg/TlwgTypo-Bold.ttf");
 
   TextData textData;
   textData.setText("I am gonna be \n king of the pirates.");
@@ -53,6 +53,11 @@ int main() {
   shader.setUniformMat4("modelMat", modelMat);
 
   while (!window.m_ShouldClose) {
+    GLenum err;
+    while((err = glGetError()) != GL_NO_ERROR)
+    {
+      std::cout<<err<<std::endl;
+    }
     // poll window events
     window.pollEvents([&window, &textData, &font, &shader](SDL_Event e) {
       switch (e.type) {
@@ -60,9 +65,8 @@ int main() {
         if (SDL_KeyCode::SDLK_RETURN <= e.key.keysym.sym and
             e.key.keysym.sym <= SDL_KeyCode::SDLK_z) {
           textData.appendChar(e.key.keysym.sym); // 0 1 2 3 4 5
-          textData.updateRenderDataStartingFrom(font,
-                                                textData.textBuffer.size() - 1);
-          //  textData.genRenderData(font);
+          textData.updateRenderDataStartingFrom(font,textData.textBuffer.size() - 1);
+          //textData.genRenderData(font);
         }
         break;
       }

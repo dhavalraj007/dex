@@ -45,7 +45,7 @@ struct TextData {
 
   void appendText(const char *str) { textBuffer.append(str); }
 
-  void genRenderData(Font &font);
+  void genRenderData(Font &font,uint32_t start=0);
 
   void render();
   void updateRenderDataStartingFrom(Font &font, uint32_t leftMostUpdated);
