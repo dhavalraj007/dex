@@ -12,7 +12,7 @@ void TextData::render() {
 }
 
 TextData::TextData() : fontSize(30), scaledLineHeight(0) {
-  const int defaultNumVerts = 10000;
+  const int defaultNumVerts = 300;
   vertexData.reserve(defaultNumVerts);
   glGenBuffers(1, &vboId);
   CHECK_GL_ERROR;
@@ -29,9 +29,10 @@ TextData::TextData() : fontSize(30), scaledLineHeight(0) {
   CHECK_GL_ERROR;
 }
 
-void TextData::genRenderData(Font &font) {
+void TextData::genRenderData(Font &font,uint32_t start) {
 
   // for local space scaling
+  int vertexIndex = start * 6;
   const double maxSize = (font.fontGeometry.getMetrics().ascenderY -
                           font.fontGeometry.getMetrics().descenderY);
   const double fontScale = 1.0 / maxSize;
@@ -72,7 +73,6 @@ void TextData::genRenderData(Font &font) {
     pr += x;
     pb += y;
     pt += y;
-
     TextVertex vertexLB{glm::vec2(pl, pb), glm::vec2(al, ab)};
     TextVertex vertexRB{glm::vec2(pr, pb), glm::vec2(ar, ab)};
     TextVertex vertexLT{glm::vec2(pl, pt), glm::vec2(al, at)};
@@ -94,8 +94,19 @@ void TextData::genRenderData(Font &font) {
   }
   glBindVertexArray(vaoId);
   glBindBuffer(GL_ARRAY_BUFFER, vboId);
-  glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(TextVertex),
+
+  //re-allocate memory according to vertexData's capacity 
+  GLint buffer_size=0;
+  glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &buffer_size);
+  if(buffer_size>=sizeof(TextVertex)*vertexData.capacity())
+  {
+     glBufferSubData(GL_ARRAY_BUFFER, vertexIndex * sizeof(TextVertex),(vertexData.size()-vertexIndex)*sizeof(TextVertex), &vertexData[vertexIndex]);
+  }
+  else
+  {
+    glBufferData(GL_ARRAY_BUFFER,vertexData.capacity() * sizeof(TextVertex),
                vertexData.data(), GL_DYNAMIC_DRAW);
+  }
   // pos attribute
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
@@ -117,17 +128,21 @@ void TextData::updateRenderDataStartingFrom(Font &font, uint32_t start) {
   scaledLineHeight =
       fontScale * fontSize * font.fontGeometry.getMetrics().lineHeight;
 
-  double x = vertexData.back().pos.x;
-  double y = vertexData.back().pos.y;
-
+  //getting x and y from last char 
+  auto geo=font.fontGeometry.getGlyph(textBuffer[textBuffer.size()-2]);
+  double temp_pl, temp_pb, temp_pr, temp_pt;
+  geo->getQuadPlaneBounds(temp_pl, temp_pb, temp_pr, temp_pt);
+  double x = vertexData.back().pos.x-(temp_pr*fontScale);
+  double y = vertexData.back().pos.y-(temp_pt*fontScale);
+  
   int vertexIndex = start * 6;
   vertexData.erase(vertexIndex + vertexData.begin(), vertexData.end());
-
+  
   //set advance for start and start-1 character
   double advance=0;
   if(start-1>=0)
     font.fontGeometry.getAdvance(advance,textBuffer[start-1],textBuffer[start]);
-  x+= advance;
+  x+= fontScale*advance;
   
   
   for (int i = start; i < textBuffer.size(); i++) {
@@ -182,7 +197,19 @@ void TextData::updateRenderDataStartingFrom(Font &font, uint32_t start) {
   glBindVertexArray(vaoId);
   glBindBuffer(GL_ARRAY_BUFFER, vboId);
   LOG("\n{},{},{}\n", vertexIndex ,vertexIndex * sizeof(TextVertex),(vertexData.size()-vertexIndex)*sizeof(TextVertex));
-  glBufferSubData(GL_ARRAY_BUFFER, vertexIndex * sizeof(TextVertex),(vertexData.size()-vertexIndex)*sizeof(TextVertex), &vertexData[vertexIndex]);
+  //re-allocate memory according to vertexData's capacity 
+  GLint buffer_size=0;
+  glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &buffer_size);
+  if(buffer_size>=sizeof(TextVertex)*vertexData.capacity())
+  {
+    glBufferSubData(GL_ARRAY_BUFFER, vertexIndex * sizeof(TextVertex),(vertexData.size()-vertexIndex)*sizeof(TextVertex), &vertexData[vertexIndex]);
+  }
+  else
+  {
+    glBufferData(GL_ARRAY_BUFFER, vertexData.capacity() * sizeof(TextVertex),
+               vertexData.data(), GL_DYNAMIC_DRAW);
+  }
+  
   // pos attribute
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
