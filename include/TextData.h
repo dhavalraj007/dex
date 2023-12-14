@@ -12,6 +12,7 @@
 #include "msdf-atlas-gen/FontGeometry.h"
 #include "msdf-atlas-gen/GlyphGeometry.h"
 #include "texture.h"
+#include "Cursor.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -48,7 +49,7 @@ struct TextData {
   void genRenderData(Font &font,uint32_t start=0);
 
   void render();
-  void updateRenderDataStartingFrom(Font &font, uint32_t leftMostUpdated);
+  void updateRenderDataStartingFrom(Font &font, uint32_t leftMostUpdated,Cursor &cursor);
 private:
   double scaledLineHeight;
 

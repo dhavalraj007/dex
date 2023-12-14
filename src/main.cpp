@@ -17,6 +17,7 @@
 #include "shader.h"
 #include "stb_image_write.h"
 #include "texture.h"
+#include "Cursor.h"
 
 int main() {
 
@@ -30,12 +31,14 @@ int main() {
 
   Shader shader("../src/shaders/FontVertex.glsl",
                 "../src/shaders/FontFragmentShader.glsl");
+  Shader cursor_shader("../src/shaders/CursorVertexShader.glsl",
+                "../src/shaders/CursorFragmentShader.glsl");
 
   Font font("/usr/share/fonts/truetype/tlwg/TlwgTypo-Bold.ttf");
-
+   Cursor cursor;
   TextData textData;
   textData.setText("I am gonna be \n king of the pirates.");
-  textData.genRenderData(font);
+  textData.updateRenderDataStartingFrom(font,0,cursor);
 
   auto orthoMat = glm::ortho(0.f, float(window.getProps().w), 0.f,
                              float(window.getProps().h));
@@ -51,6 +54,10 @@ int main() {
   shader.setUniformInt("ourTexture", font.texture->getTexUnit());
   shader.setUniformMat4("orthoMat", orthoMat);
   shader.setUniformMat4("modelMat", modelMat);
+  cursor_shader.setUniformMat4("orthoMat", orthoMat);
+  cursor_shader.setUniformMat4("modelMat", modelMat);
+  //cursor_shader.
+ 
 
   while (!window.m_ShouldClose) {
     GLenum err;
@@ -59,13 +66,13 @@ int main() {
       std::cout<<err<<std::endl;
     }
     // poll window events
-    window.pollEvents([&window, &textData, &font, &shader](SDL_Event e) {
+    window.pollEvents([&window, &textData, &font, &shader,&cursor](SDL_Event e) {
       switch (e.type) {
       case SDL_KEYDOWN: {
         if (SDL_KeyCode::SDLK_RETURN <= e.key.keysym.sym and
             e.key.keysym.sym <= SDL_KeyCode::SDLK_z) {
           textData.appendChar(e.key.keysym.sym); // 0 1 2 3 4 5
-          textData.updateRenderDataStartingFrom(font,textData.textBuffer.size() - 1);
+          textData.updateRenderDataStartingFrom(font,textData.textBuffer.size() - 1,cursor);
           //textData.genRenderData(font);
         }
         break;
@@ -97,8 +104,11 @@ int main() {
     input::Mouse::Update();
     input::Keyboard::Update();
 
-    shader.bind();
+    //shader.bind();
+    cursor_shader.bind();
     font.texture->bind();
+    cursor.render();
+    shader.bind();
     textData.render();
 
     window.swapbuffers();
