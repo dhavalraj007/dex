@@ -1,0 +1,29 @@
+goal: to render text
+
+given:
+start , end char in textBuffer
+
+output:
+gen re render data betwenn start , end
+
+
+
+textBuffer
+string with gap buffer
+
+
+
+abcde\n
+e\n
+fgh\n
+
+
+
+0:6
+1:12
+
+0:6
+1:8
+2:12
+
+line:2

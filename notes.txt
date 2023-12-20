@@ -1,0 +1,27 @@
+
+
+TODO:
+move font to TextData
+per Line rendering see below
+cursor -> position in textBuffer
+       -> to render use position in textBuffer
+
+abcd
+
+
+
+
+
+
+
+
+a\n\n\n\nB
+
+
+updateRenderDataStartingFrom(start)
+
+	divide textBuffer starting from start to end in lines
+	RenderEachLine
+	
+		
+

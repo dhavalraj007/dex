@@ -22,21 +22,20 @@ struct TextVertex {
   glm::vec2 texCoords;
 };
 
+
 struct TextData {
   std::string textBuffer;
-  std::vector<TextVertex>
+  std::vector<TextVertex>                    
       vertexData; // cpu side vertex data , maintain consistency with gpu side
-
+  Font font;
   uint32_t vboId{};
   uint32_t vaoId{};
   double fontSize;
-
-  [[nodiscard]] double getScaledLineHeight() const {
-    // Todo: add check for if genRenderData is called?
-    return scaledLineHeight;
-  };
+  double fontScale;
+  double lineHeight;
 
   TextData();
+
 
   void setText(std::string str) { textBuffer = std::move(str); }
 
@@ -45,14 +44,18 @@ struct TextData {
   void appendChar(char c) { textBuffer.push_back(c); }
 
   void appendText(const char *str) { textBuffer.append(str); }
+  void render() ;
 
-  void genRenderData(Font &font,uint32_t start=0);
 
+<<<<<<< HEAD
   void render();
   void updateRenderDataStartingFrom(Font &font, uint32_t leftMostUpdated,Cursor &cursor);
 private:
   double scaledLineHeight;
+=======
+>>>>>>> b0ac9f4 (fix)
 
+  void updateRenderDataStartingFrom( uint32_t leftMostUpdated);
 
 };
 
