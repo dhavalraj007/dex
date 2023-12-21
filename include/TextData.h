@@ -5,7 +5,6 @@
 #ifndef DEEX_TEXTDATA_H
 #define DEEX_TEXTDATA_H
 
-#include "Cursor.h"
 #include "Font.h"
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
@@ -38,10 +37,15 @@ struct TextData {
   void setText(std::string str) { textBuffer = std::move(str); }
 
   void appendText(const std::string &str) { textBuffer.append(str); }
-
+  void appendText(const char *str) { textBuffer.append(str); }
   void appendChar(char c) { textBuffer.push_back(c); }
 
-  void appendText(const char *str) { textBuffer.append(str); }
+
+  void insertText(int index,const std::string &str){ textBuffer.insert(index,str);}
+  void insertText(int index,const char* str){ textBuffer.insert(index,str);}
+  void insertChar(int index,char c){textBuffer.insert(index,1,c);}
+  
+  glm::vec2 getXYCoordFromBufferIndex(int textIndex) const;
   void render();
 
   void updateRenderDataStartingFrom(uint32_t leftMostUpdated);

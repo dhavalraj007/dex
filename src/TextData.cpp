@@ -1,9 +1,9 @@
 #include "TextData.h"
 #include "Font.h"
 #include "glm/ext/matrix_transform.hpp"
-
 void TextData::render() {
   glBindVertexArray(vaoId);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDrawArrays(GL_TRIANGLES, 0, vertexData.size());
 }
 
@@ -30,6 +30,20 @@ TextData::TextData() : fontSize(30), font("../MouldyCheeseRegular-WyMWG.ttf") {
   CHECK_GL_ERROR;
 }
 
+glm::vec2 TextData::getXYCoordFromBufferIndex(int textIndex) const {
+  const msdf_atlas::GlyphGeometry *geo = font.fontGeometry.getGlyph('?');
+  if (textBuffer[textIndex] == '\n')
+    geo = font.fontGeometry.getGlyph(' ');
+  else
+    geo = font.fontGeometry.getGlyph(textBuffer[textIndex]);
+  double temp_pl, temp_pb, temp_pr, temp_pt;
+  geo->getQuadPlaneBounds(temp_pl, temp_pb, temp_pr, temp_pt);
+  int vertexIndex = textIndex * 6;
+  float x = vertexData[vertexIndex].pos.x - (temp_pl * fontScale);
+  float y = vertexData[vertexIndex].pos.y - (temp_pb * fontScale);
+  return {x, y};
+}
+
 void TextData::updateRenderDataStartingFrom(uint32_t start) {
 
   // for local space scaling
@@ -42,28 +56,13 @@ void TextData::updateRenderDataStartingFrom(uint32_t start) {
 
   double x = 0;
   double y = 0;
-  // getting x and y from start-1 char's right top
   if (start >= 1) {
+    auto tempXY = getXYCoordFromBufferIndex(start - 1);
+    x = tempXY.x;
+    y = tempXY.y;
     if (textBuffer[start - 1] == '\n') {
-      int prev = start - 1;
-      int count = 0;
-      while (prev > 0 && textBuffer[prev] == '\n') {
-        count++;
-        prev--;
-      }
-
-      auto geo = font.fontGeometry.getGlyph(textBuffer[prev]);
-      double temp_pl, temp_pb, temp_pr, temp_pt;
-      geo->getQuadPlaneBounds(temp_pl, temp_pb, temp_pr, temp_pt);
-      int vertexPrevIndex = prev * 6;
-      y = vertexData[vertexPrevIndex + 5].pos.y - (temp_pt * fontScale) -
-          (count * lineHeight);
-    } else {
-      auto geo = font.fontGeometry.getGlyph(textBuffer[start - 1]);
-      double temp_pl, temp_pb, temp_pr, temp_pt;
-      geo->getQuadPlaneBounds(temp_pl, temp_pb, temp_pr, temp_pt);
-      x = vertexData.back().pos.x - (temp_pr * fontScale);
-      y = vertexData.back().pos.y - (temp_pt * fontScale);
+      x = 0;
+      y -= lineHeight;
     }
   }
 
@@ -77,25 +76,14 @@ void TextData::updateRenderDataStartingFrom(uint32_t start) {
 
   for (int i = start; i < textBuffer.size(); i++) {
     char character = textBuffer[i];
-    auto geometry = font.fontGeometry.getGlyph(character);
 
+    const msdf_atlas::GlyphGeometry *geometry =
+        font.fontGeometry.getGlyph('?'); // default character if non found
     if (character == '\r' or character == '\n') {
-
-      TextVertex vertexDontDraw{
-          glm::vec2(std::numeric_limits<float>::infinity(),
-                    std::numeric_limits<float>::infinity()),
-          glm::vec2(std::numeric_limits<float>::infinity(),
-                    std::numeric_limits<float>::infinity())};
-      vertexData.push_back(vertexDontDraw);
-      vertexData.push_back(vertexDontDraw);
-      vertexData.push_back(vertexDontDraw);
-      vertexData.push_back(vertexDontDraw);
-      vertexData.push_back(vertexDontDraw);
-      vertexData.push_back(vertexDontDraw);
-
-      x = 0;
-      y -= lineHeight;
-      continue;
+      // treat \r and \n as space
+      geometry = font.fontGeometry.getGlyph(' ');
+    } else if (character >= 0x20 and character < 0x7F) {
+      geometry = font.fontGeometry.getGlyph(character);
     }
 
     double al, ab, ar, at;
@@ -128,6 +116,11 @@ void TextData::updateRenderDataStartingFrom(uint32_t start) {
     vertexData.push_back(vertexRB);
     vertexData.push_back(vertexRT);
 
+    if (character == '\r' or character == '\n') {
+      x = 0;
+      y -= lineHeight;
+      continue;
+    }
     double advance = geometry->getAdvance();
     char nextCharacter = textBuffer[i + 1];
     font.fontGeometry.getAdvance(advance, character, nextCharacter);

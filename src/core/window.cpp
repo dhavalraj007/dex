@@ -63,6 +63,7 @@ namespace core
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST);
 	}
 
 	void Window::shutdown()
@@ -117,7 +118,7 @@ namespace core
 
 	void Window::clearScreen()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void Window::swapbuffers()
