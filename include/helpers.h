@@ -1,6 +1,6 @@
 #pragma once
-#include"log.h"
-#include"glad/glad.h"
+#include "glad/glad.h"
+#include "log.h"
 
 void checkGLError();
 

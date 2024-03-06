@@ -5,20 +5,25 @@ struct vec2;
 
 struct _swizzle
 {
-	char _buffer[1];
+    char _buffer[1];
 };
 
 struct vec2
 {
-	GLM_CONSTEXPR vec2() :
-		x(0), y(0)
-	{}
+    GLM_CONSTEXPR vec2() : x(0), y(0)
+    {
+    }
 
-	union
-	{
-		struct { float x, y; };
-		struct { _swizzle xx; };
-	};
+    union {
+        struct
+        {
+            float x, y;
+        };
+        struct
+        {
+            _swizzle xx;
+        };
+    };
 };
 #endif
 
@@ -27,5 +32,5 @@ struct vec2
 
 int main()
 {
-	return 0;
+    return 0;
 }

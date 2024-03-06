@@ -3,19 +3,19 @@
 
 int main()
 {
-	int Error(0);
+    int Error(0);
 
-	glm::mat4 Matrix(1);
+    glm::mat4 Matrix(1);
 
-	glm::vec3 Scale;
-	glm::quat Orientation;
-	glm::vec3 Translation;
-	glm::vec3 Skew(1);
-	glm::vec4 Perspective(1);
+    glm::vec3 Scale;
+    glm::quat Orientation;
+    glm::vec3 Translation;
+    glm::vec3 Skew(1);
+    glm::vec4 Perspective(1);
 
-	glm::decompose(Matrix, Scale, Orientation, Translation, Skew, Perspective);
+    glm::decompose(Matrix, Scale, Orientation, Translation, Skew, Perspective);
 
-	glm::mat4 Out = glm::recompose(Scale, Orientation, Translation, Skew, Perspective);
+    glm::mat4 Out = glm::recompose(Scale, Orientation, Translation, Skew, Perspective);
 
-	return Error;
+    return Error;
 }

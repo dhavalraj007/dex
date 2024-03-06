@@ -1,12 +1,14 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #if defined(_WIN32) && _MSC_VER > 1200
-#define STBIR_ASSERT(x) \
-	if (!(x)) {         \
-		__debugbreak();  \
-	} else
+#define STBIR_ASSERT(x)                                                                                                \
+    if (!(x))                                                                                                          \
+    {                                                                                                                  \
+        __debugbreak();                                                                                                \
+    }                                                                                                                  \
+    else
 #else
 #include <assert.h>
 #define STBIR_ASSERT(x) assert(x)
@@ -15,46 +17,47 @@
 #define STBIR_MALLOC stbir_malloc
 #define STBIR_FREE stbir_free
 
-class stbir_context {
-public:
-	stbir_context()
-	{
-		size = 1000000;
-		memory = malloc(size);
-	}
+class stbir_context
+{
+  public:
+    stbir_context()
+    {
+        size = 1000000;
+        memory = malloc(size);
+    }
 
-	~stbir_context()
-	{
-		free(memory);
-	}
+    ~stbir_context()
+    {
+        free(memory);
+    }
 
-	size_t size;
-	void* memory;
+    size_t size;
+    void *memory;
 } g_context;
 
-void* stbir_malloc(size_t size, void* context)
+void *stbir_malloc(size_t size, void *context)
 {
-	if (!context)
-		return malloc(size);
+    if (!context)
+        return malloc(size);
 
-	stbir_context* real_context = (stbir_context*)context;
-	if (size > real_context->size)
-		return 0;
+    stbir_context *real_context = (stbir_context *)context;
+    if (size > real_context->size)
+        return 0;
 
-	return real_context->memory;
+    return real_context->memory;
 }
 
-void stbir_free(void* memory, void* context)
+void stbir_free(void *memory, void *context)
 {
-	if (!context)
-		free(memory);
+    if (!context)
+        free(memory);
 }
 
-//#include <stdio.h>
+// #include <stdio.h>
 void stbir_progress(float p)
 {
-	//printf("%f\n", p);
-	STBIR_ASSERT(p >= 0 && p <= 1);
+    // printf("%f\n", p);
+    STBIR_ASSERT(p >= 0 && p <= 1);
 }
 
 #ifdef __clang__
@@ -73,8 +76,8 @@ void stbir_progress(float p)
 #include "stb_image.h"
 
 #ifdef _WIN32
-#include <sys/timeb.h>
 #include <direct.h>
+#include <sys/timeb.h>
 #define mkdir(a, b) _mkdir(a)
 #else
 #include <sys/stat.h>
@@ -88,104 +91,112 @@ static size_t g_iMTI = 0;
 // Avoiding use of the system rand() to be sure that our tests generate the same test data on any system.
 void mtsrand(size_t iSeed)
 {
-	g_aiMT[0] = iSeed;
-	for (size_t i = 1; i < MT_SIZE; i++)
-	{
-		size_t inner1 = g_aiMT[i - 1];
-		size_t inner2 = (g_aiMT[i - 1] >> 30);
-		size_t inner = inner1 ^ inner2;
-		g_aiMT[i] = (0x6c078965 * inner) + i;
-	}
+    g_aiMT[0] = iSeed;
+    for (size_t i = 1; i < MT_SIZE; i++)
+    {
+        size_t inner1 = g_aiMT[i - 1];
+        size_t inner2 = (g_aiMT[i - 1] >> 30);
+        size_t inner = inner1 ^ inner2;
+        g_aiMT[i] = (0x6c078965 * inner) + i;
+    }
 
-	g_iMTI = 0;
+    g_iMTI = 0;
 }
 
 size_t mtrand()
 {
-	if (g_iMTI == 0)
-	{
-		for (size_t i = 0; i < MT_SIZE; i++)
-		{
-			size_t y = (0x80000000 & (g_aiMT[i])) + (0x7fffffff & (g_aiMT[(i + 1) % MT_SIZE]));
-			g_aiMT[i] = g_aiMT[(i + 397) % MT_SIZE] ^ (y >> 1);
-			if ((y % 2) == 1)
-				g_aiMT[i] = g_aiMT[i] ^ 0x9908b0df;
-		}
-	}
+    if (g_iMTI == 0)
+    {
+        for (size_t i = 0; i < MT_SIZE; i++)
+        {
+            size_t y = (0x80000000 & (g_aiMT[i])) + (0x7fffffff & (g_aiMT[(i + 1) % MT_SIZE]));
+            g_aiMT[i] = g_aiMT[(i + 397) % MT_SIZE] ^ (y >> 1);
+            if ((y % 2) == 1)
+                g_aiMT[i] = g_aiMT[i] ^ 0x9908b0df;
+        }
+    }
 
-	size_t y = g_aiMT[g_iMTI];
-	y = y ^ (y >> 11);
-	y = y ^ ((y << 7) & (0x9d2c5680));
-	y = y ^ ((y << 15) & (0xefc60000));
-	y = y ^ (y >> 18);
+    size_t y = g_aiMT[g_iMTI];
+    y = y ^ (y >> 11);
+    y = y ^ ((y << 7) & (0x9d2c5680));
+    y = y ^ ((y << 15) & (0xefc60000));
+    y = y ^ (y >> 18);
 
-	g_iMTI = (g_iMTI + 1) % MT_SIZE;
+    g_iMTI = (g_iMTI + 1) % MT_SIZE;
 
-	return y;
+    return y;
 }
-
 
 inline float mtfrand()
 {
-	const int ninenine = 999999;
-	return (float)(mtrand() % ninenine)/ninenine;
+    const int ninenine = 999999;
+    return (float)(mtrand() % ninenine) / ninenine;
 }
 
 void resizer(int argc, char **argv)
 {
-	unsigned char* input_pixels;
-	unsigned char* output_pixels;
-	int w, h;
-	int n;
-	int out_w, out_h;
-	input_pixels = stbi_load(argv[1], &w, &h, &n, 0);
-	out_w = w*3;
-	out_h = h*3;
-	output_pixels = (unsigned char*) malloc(out_w*out_h*n);
-	//stbir_resize_uint8_srgb(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, n, -1,0);
-	stbir_resize_uint8_linear(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, (stbir_pixel_layout) n);
-	stbi_write_png("output.png", out_w, out_h, n, output_pixels, 0);
-	exit(0);
+    unsigned char *input_pixels;
+    unsigned char *output_pixels;
+    int w, h;
+    int n;
+    int out_w, out_h;
+    input_pixels = stbi_load(argv[1], &w, &h, &n, 0);
+    out_w = w * 3;
+    out_h = h * 3;
+    output_pixels = (unsigned char *)malloc(out_w * out_h * n);
+    // stbir_resize_uint8_srgb(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, n, -1,0);
+    stbir_resize_uint8_linear(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, (stbir_pixel_layout)n);
+    stbi_write_png("output.png", out_w, out_h, n, output_pixels, 0);
+    exit(0);
 }
 
 void performance(int argc, char **argv)
 {
-	unsigned char* input_pixels;
-	unsigned char* output_pixels;
-	int w, h, count;
-	int n, i;
-	int out_w, out_h, srgb=1;
-	input_pixels = stbi_load(argv[1], &w, &h, &n, 0);
-    #if 0
+    unsigned char *input_pixels;
+    unsigned char *output_pixels;
+    int w, h, count;
+    int n, i;
+    int out_w, out_h, srgb = 1;
+    input_pixels = stbi_load(argv[1], &w, &h, &n, 0);
+#if 0
     out_w = w/4; out_h = h/4; count=100; // 1
-    #elif 0
-	out_w = w*2; out_h = h/4; count=20; // 2   // note this is structured pessimily, would be much faster to downsample vertically first
-    #elif 0
-    out_w = w/4; out_h = h*2; count=50; // 3
-    #elif 0
-    out_w = w*3; out_h = h*3; count=2; srgb=0; // 4
-    #else
-    out_w = w*3; out_h = h*3; count=2; // 5   // this is dominated by linear->sRGB conversion
-    #endif
+#elif 0
+    out_w = w * 2;
+    out_h = h / 4;
+    count = 20; // 2   // note this is structured pessimily, would be much faster to downsample vertically first
+#elif 0
+    out_w = w / 4;
+    out_h = h * 2;
+    count = 50; // 3
+#elif 0
+    out_w = w * 3;
+    out_h = h * 3;
+    count = 2;
+    srgb = 0; // 4
+#else
+    out_w = w * 3;
+    out_h = h * 3;
+    count = 2; // 5   // this is dominated by linear->sRGB conversion
+#endif
 
-	output_pixels = (unsigned char*) malloc(out_w*out_h*n);
-    for (i=0; i < count; ++i)
+    output_pixels = (unsigned char *)malloc(out_w * out_h * n);
+    for (i = 0; i < count; ++i)
         if (srgb)
-	        stbir_resize_uint8_srgb(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, (stbir_pixel_layout) n);
+            stbir_resize_uint8_srgb(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, (stbir_pixel_layout)n);
         else
-	        stbir_resize_uint8_linear(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, (stbir_pixel_layout) n);
-	exit(0);
+            stbir_resize_uint8_linear(input_pixels, w, h, 0, output_pixels, out_w, out_h, 0, (stbir_pixel_layout)n);
+    exit(0);
 }
 
 void test_suite(int argc, char **argv);
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	//resizer(argc, argv);
-    //performance(argc, argv);
+    // resizer(argc, argv);
+    // performance(argc, argv);
 
-	test_suite(argc, argv);
-	return 0;
+    test_suite(argc, argv);
+    return 0;
 }
 
 #if 0
@@ -838,7 +849,7 @@ void test_filters(void)
 	}
 }
 
-#define UMAX32   4294967295U
+#define UMAX32 4294967295U
 
 static void write32(const char *filename, stbir_uint32 *output, int w, int h)
 {

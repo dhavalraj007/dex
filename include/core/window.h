@@ -1,14 +1,16 @@
 #pragma once
 
-#include<string>
-#include<functional>
 #include "glm/vec4.hpp"
-#include<SDL2/SDL.h>
+#include <SDL2/SDL.h>
+#include <functional>
+#include <string>
 
 typedef struct SDL_Window SDL_Window;
 typedef void *SDL_GLContext;
-namespace core {
-    struct WindowProperties {
+namespace core
+{
+    struct WindowProperties
+    {
         std::string title;
         int x, y, w, h;
         int wMin, hMin;
@@ -19,11 +21,14 @@ namespace core {
         WindowProperties();
     };
 
-    class Window {
-    public:
+    class Window
+    {
+      public:
         Window();
 
-        ~Window() {}
+        ~Window()
+        {
+        }
 
         void create(const WindowProperties &props);
 
@@ -36,12 +41,16 @@ namespace core {
 
         void swapbuffers();
 
-        inline WindowProperties getProps() const { return m_props; }
+        inline WindowProperties getProps() const
+        {
+            return m_props;
+        }
 
         bool m_ShouldClose = false;
-    private:
+
+      private:
         SDL_Window *m_Window;
         SDL_GLContext m_Context;
         WindowProperties m_props;
     };
-}
+} // namespace core

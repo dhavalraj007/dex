@@ -9,33 +9,33 @@ static_assert(sizeof(glm::i64vec4) == 32, "int64 size isn't 8 bytes on this plat
 
 static int test_size()
 {
-	int Error = 0;
+    int Error = 0;
 
-	Error += sizeof(glm::i8vec4) == 4 ? 0 : 1;
-	Error += sizeof(glm::i16vec4) == 8 ? 0 : 1;
-	Error += sizeof(glm::i32vec4) == 16 ? 0 : 1;
-	Error += sizeof(glm::i64vec4) == 32 ? 0 : 1;
+    Error += sizeof(glm::i8vec4) == 4 ? 0 : 1;
+    Error += sizeof(glm::i16vec4) == 8 ? 0 : 1;
+    Error += sizeof(glm::i32vec4) == 16 ? 0 : 1;
+    Error += sizeof(glm::i64vec4) == 32 ? 0 : 1;
 
-	return Error;
+    return Error;
 }
 
 static int test_comp()
 {
-	int Error = 0;
+    int Error = 0;
 
-	Error += sizeof(glm::i8vec4) < sizeof(glm::i16vec4) ? 0 : 1;
-	Error += sizeof(glm::i16vec4) < sizeof(glm::i32vec4) ? 0 : 1;
-	Error += sizeof(glm::i32vec4) < sizeof(glm::i64vec4) ? 0 : 1;
+    Error += sizeof(glm::i8vec4) < sizeof(glm::i16vec4) ? 0 : 1;
+    Error += sizeof(glm::i16vec4) < sizeof(glm::i32vec4) ? 0 : 1;
+    Error += sizeof(glm::i32vec4) < sizeof(glm::i64vec4) ? 0 : 1;
 
-	return Error;
+    return Error;
 }
 
 int main()
 {
-	int Error = 0;
+    int Error = 0;
 
-	Error += test_size();
-	Error += test_comp();
+    Error += test_size();
+    Error += test_comp();
 
-	return Error;
+    return Error;
 }

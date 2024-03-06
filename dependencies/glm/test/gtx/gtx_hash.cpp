@@ -4,7 +4,7 @@
 
 int test_compile()
 {
-	int Error = 0;
+    int Error = 0;
 
     // Vector types
     std::unordered_map<glm::vec1, int> map_vec1;
@@ -42,15 +42,14 @@ int test_compile()
     std::unordered_map<glm::mat4x4, int> map_mat4x4;
     Error += ++map_mat4x4[glm::mat4x4(0.0f)];
 
-	return Error > 0 ? 0 : 1;
+    return Error > 0 ? 0 : 1;
 }
 
 int main()
 {
-	int Error = 0;
+    int Error = 0;
 
-	Error += test_compile();
+    Error += test_compile();
 
-	return Error;
+    return Error;
 }
-

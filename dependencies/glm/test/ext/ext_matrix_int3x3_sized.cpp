@@ -9,20 +9,20 @@ static_assert(sizeof(glm::i64mat3x3) == 72, "int64 size isn't 8 bytes on this pl
 
 static int test_comp()
 {
-	int Error = 0;
+    int Error = 0;
 
-	Error += sizeof(glm::i8mat3x3) < sizeof(glm::i16mat3x3) ? 0 : 1;
-	Error += sizeof(glm::i16mat3x3) < sizeof(glm::i32mat3x3) ? 0 : 1;
-	Error += sizeof(glm::i32mat3x3) < sizeof(glm::i64mat3x3) ? 0 : 1;
+    Error += sizeof(glm::i8mat3x3) < sizeof(glm::i16mat3x3) ? 0 : 1;
+    Error += sizeof(glm::i16mat3x3) < sizeof(glm::i32mat3x3) ? 0 : 1;
+    Error += sizeof(glm::i32mat3x3) < sizeof(glm::i64mat3x3) ? 0 : 1;
 
-	return Error;
+    return Error;
 }
 
 int main()
 {
-	int Error = 0;
+    int Error = 0;
 
-	Error += test_comp();
+    Error += test_comp();
 
-	return Error;
+    return Error;
 }
