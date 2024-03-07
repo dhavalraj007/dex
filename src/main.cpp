@@ -1,21 +1,17 @@
-#include <filesystem>
+#include "SDL_events.h"
+#include "SDL_hints.h"
+#include "SDL_rect.h"
+#include <cstring>
 #include <format>
-#include <iostream>
 #include <type_traits>
-
-#include "glad/glad.h"
 
 #define SDL_MAIN_HANDLED
 
 #include "Cursor.h"
-#include "SDL2/SDL.h"
 #include "TextData.h"
 #include "core/window.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
-#include "msdf-atlas-gen/msdf-atlas-gen.h"
-#include "msdfgen-ext.h"
-#include "msdfgen.h"
 #include "shader.h"
 #include "stb_image_write.h"
 #include "texture.h"
@@ -42,7 +38,7 @@ int main()
 
         TextData textData;
         Cursor cursor(textData);
-        textData.setText("I am gonna be\nking of the pirates.\n");
+        textData.setText("I gonna be\nking of the pirates.\n");
         textData.updateRenderDataStartingFrom(0);
 
         auto orthoMat = glm::ortho(0.f, float(window.getProps().w), 0.f, float(window.getProps().h));
@@ -62,8 +58,7 @@ int main()
         cursor_shader.setUniformFloat3("in_color", cursor_color);
         while (!window.m_ShouldClose)
         {
-            // poll window events
-            window.pollEvents([&window, &textData, &shader, &cursor, &cursor_shader](SDL_Event e) {
+            auto currEventHandler = [&window, &textData, &shader, &cursor, &cursor_shader](SDL_Event e) {
                 switch (e.type)
                 {
                 case SDL_KEYDOWN: {
@@ -74,7 +69,7 @@ int main()
                     }
                     break;
                     case SDL_KeyCode::SDLK_RIGHT: {
-                        SDL_Keymod mod = SDL_GetModState();
+                         SDL_Keymod mod = SDL_GetModState();
                         LOG("mod:{}", mod & KMOD_CTRL);
                         cursor.forward();
                     }
@@ -105,20 +100,17 @@ int main()
                         textData.updateRenderDataStartingFrom(cursor.getPosInString());
                     }
                     break;
-                    default: // printable character pressed?
-                    {
-                        if (SDL_KeyCode::SDLK_RETURN <= e.key.keysym.sym and e.key.keysym.sym <= SDL_KeyCode::SDLK_z)
-                        {
-                            if (e.key.keysym.sym >= 0x20 and e.key.keysym.sym < 0x7F) // if its printable ASCII
-                                textData.insertChar(cursor.getPosInString(), e.key.keysym.sym);
-                            textData.updateRenderDataStartingFrom(cursor.getPosInString());
-                            cursor.forward();
-                        }
-                    }
+                    default:
                     break;
                     }
                 }
                 break; // end of case SDL::KEYDOWN
+                case SDL_TEXTINPUT:
+                            textData.insertChar(cursor.getPosInString(), e.text.text[0]);
+                            assert(strlen(e.text.text)==1); // this should be true ig
+                            textData.updateRenderDataStartingFrom(cursor.getPosInString());
+                            cursor.forward();
+                    break;
                 case SDL_WINDOWEVENT: {
                     switch (e.window.event)
                     {
@@ -140,7 +132,18 @@ int main()
                 }
                 break;
                 }
-            });
+            };
+
+            // poll window events
+            window.pollEvents(currEventHandler);
+            // window.pollEvents([](SDL_Event e){
+            //     switch(e.type)
+            //     {
+            //         case SDL_TEXTINPUT:
+            //             LOG("SDL_TEXTINPUT {}",e.text.text);
+            //             break;
+            //     }
+            // });
 
             //      LOG("current textBuffer:{}",textData.textBuffer);
             // LOG("current cursor on {} which is

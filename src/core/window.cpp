@@ -1,4 +1,5 @@
 #include "core/window.h"
+#include "SDL_keyboard.h"
 #include <SDL2/SDL.h>
 #include <format>
 #include <functional>
@@ -80,6 +81,7 @@ namespace core
     void Window::pollEvents(const std::function<void(SDL_Event)> &clientEventHandler)
     {
         SDL_Event e;
+        SDL_StartTextInput();
         while (SDL_PollEvent(&e))
         {
             switch (e.type)
@@ -111,6 +113,7 @@ namespace core
             }
             clientEventHandler(e);
         }
+        SDL_StopTextInput();
     }
 
     void Window::clearScreen()

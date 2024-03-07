@@ -6,6 +6,8 @@
 
 Cursor::Cursor(const TextData &textData) : textDataRef(textData)
 {
+    cursorHeight = textData.lineHeight;
+
     glGenVertexArrays(1, &vao);
     CHECK_GL_ERROR;
     glGenBuffers(1, &vbo);
@@ -36,7 +38,6 @@ Cursor::Cursor(const TextData &textData) : textDataRef(textData)
         posInPlane.y + cursorHeight,
 
     };
-
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_DYNAMIC_DRAW);
     CHECK_GL_ERROR;
     // Specify the layout of the vertex data
@@ -48,11 +49,14 @@ Cursor::Cursor(const TextData &textData) : textDataRef(textData)
     CHECK_GL_ERROR;
     glBindVertexArray(0);
     CHECK_GL_ERROR;
+
+    update();
 }
 
 void Cursor::update()
 {
     posInPlane = textDataRef.getXYCoordFromBufferIndex(posInString);
+    posInPlane.y += textDataRef.font.fontGeometry.getMetrics().descenderY;
     glBindVertexArray(vao);
     CHECK_GL_ERROR;
     glBindBuffer(GL_ARRAY_BUFFER, vbo);

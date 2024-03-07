@@ -3,8 +3,11 @@
 //
 #include "Font.h"
 #include "log.h"
+#include "msdf-atlas-gen/BitmapAtlasStorage.h"
 #include "msdf-atlas-gen/Charset.h"
-#include "msdf-atlas-gen/msdf-atlas-gen.h"
+#include "msdf-atlas-gen/ImmediateAtlasGenerator.h"
+#include "msdf-atlas-gen/TightAtlasPacker.h"
+#include "msdf-atlas-gen/glyph-generators.h"
 #include "stb_image_write.h"
 
 Font::Font(const std::filesystem::path &path)
