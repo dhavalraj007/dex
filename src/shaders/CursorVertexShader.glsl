@@ -9,8 +9,8 @@ uniform mat4 modelMat;
 
 void main()
 {
-        vec4 Position = orthoMat*modelMat*vec4(aPos,0.0, 1.0);
-	Position.z = -1.0;
-	gl_Position = Position;
-	ourColor = in_color;
+    vec4 Position = orthoMat*modelMat*vec4(aPos,0.0, 1.0);
+    Position.z = -1.0;
+    gl_Position = Position;
+    ourColor = in_color;
 }

@@ -1,6 +1,6 @@
 #pragma once
-#include "TextData.h"
 #include "glm/vec2.hpp"
+#include "shader.h"
 
 struct LineInfo
 {
@@ -13,6 +13,8 @@ struct LineInfo
         return end - start + 1;
     }
 };
+
+struct TextData;
 struct Cursor
 {
     Cursor(const TextData &);
@@ -28,12 +30,11 @@ struct Cursor
     {
         return posInString;
     }
-
   private:
     const TextData &textDataRef;
     uint32_t vao;
     uint32_t vbo;
-    glm::vec2 posInPlane = {0, 0};
+    glm::vec2 posInPlane;
     int posInString = 0;
     float cursorHeight = 1;
     float cursorWidth = 0.1;

@@ -5,6 +5,7 @@
 #ifndef DEEX_TEXTDATA_H
 #define DEEX_TEXTDATA_H
 
+#include "Cursor.h"
 #include "Font.h"
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
@@ -33,6 +34,7 @@ struct TextData
     double fontSize;
     double fontScale;
     double lineHeight;
+    Cursor cursor;
 
     TextData();
 

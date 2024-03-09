@@ -10,12 +10,13 @@ void TextData::render()
     glDrawArrays(GL_TRIANGLES, 0, vertexData.size());
 }
 
-TextData::TextData() : fontSize(30), font("../MouldyCheeseRegular-WyMWG.ttf")
-{
-    const double maxSize = (font.fontGeometry.getMetrics().ascenderY - font.fontGeometry.getMetrics().descenderY);
-    fontScale = 1.0 / maxSize;
-    lineHeight = fontScale * font.fontGeometry.getMetrics().lineHeight;
 
+TextData::TextData()
+    : font("../MouldyCheeseRegular-WyMWG.ttf"), fontSize(30),
+      fontScale(1.0 / (font.fontGeometry.getMetrics().ascenderY - font.fontGeometry.getMetrics().descenderY)),
+      lineHeight(fontScale * font.fontGeometry.getMetrics().lineHeight),
+      cursor(*this)
+{
     const int defaultNumVerts = 300;
     vertexData.reserve(defaultNumVerts);
     glGenBuffers(1, &vboId);

@@ -1,6 +1,7 @@
 #include "SDL_events.h"
 #include "SDL_hints.h"
 #include "SDL_rect.h"
+#include <cstdint>
 #include <cstring>
 #include <format>
 #include <type_traits>
@@ -16,12 +17,6 @@
 #include "stb_image_write.h"
 #include "texture.h"
 
-template <typename T>
-    requires(!std::is_lvalue_reference_v<T>)
-inline std::span<std::byte> __attribute__((always_inline)) convertToBytes(T &&r)
-{
-    return {static_cast<std::byte *>(&r), sizeof(T)};
-}
 
 int main()
 {
@@ -37,7 +32,6 @@ int main()
         Shader cursor_shader("../src/shaders/CursorVertexShader.glsl", "../src/shaders/CursorFragmentShader.glsl");
 
         TextData textData;
-        Cursor cursor(textData);
         textData.setText("I gonna be\nking of the pirates.\n");
         textData.updateRenderDataStartingFrom(0);
 
@@ -54,50 +48,53 @@ int main()
         shader.setUniformMat4("modelMat", modelMat);
         cursor_shader.setUniformMat4("orthoMat", orthoMat);
         cursor_shader.setUniformMat4("modelMat", modelMat);
+        int32_t counter=0;
+        cursor_shader.setUniformInt("counter",++counter);
         glm::vec3 cursor_color{1.0, 1.0, 1.0};
         cursor_shader.setUniformFloat3("in_color", cursor_color);
+
         while (!window.m_ShouldClose)
         {
-            auto currEventHandler = [&window, &textData, &shader, &cursor, &cursor_shader](SDL_Event e) {
+            auto currEventHandler = [&window, &textData, &shader,&cursor_shader](SDL_Event e) {
                 switch (e.type)
                 {
                 case SDL_KEYDOWN: {
                     switch (e.key.keysym.sym)
                     {
                     case SDL_KeyCode::SDLK_LEFT: {
-                        cursor.backward();
+                        textData.cursor.backward();
                     }
                     break;
                     case SDL_KeyCode::SDLK_RIGHT: {
                          SDL_Keymod mod = SDL_GetModState();
                         LOG("mod:{}", mod & KMOD_CTRL);
-                        cursor.forward();
+                        textData.cursor.forward();
                     }
                     break;
                     case SDL_KeyCode::SDLK_UP: {
-                        cursor.previous();
+                        textData.cursor.previous();
                     }
                     break;
                     case SDL_KeyCode::SDLK_DOWN: {
-                        cursor.next();
+                        textData.cursor.next();
                     }
                     break;
                     case SDL_KeyCode::SDLK_RETURN: {
-                        textData.insertChar(cursor.getPosInString(), '\n');
-                        textData.updateRenderDataStartingFrom(cursor.getPosInString());
-                        cursor.next();
-                        cursor.gotoLineStart();
+                        textData.insertChar(textData.cursor.getPosInString(), '\n');
+                        textData.updateRenderDataStartingFrom(textData.cursor.getPosInString());
+                        textData.cursor.next();
+                        textData.cursor.gotoLineStart();
                     }
                     break;
                     case SDL_KeyCode::SDLK_BACKSPACE: {
-                        textData.deleteChar(cursor.getPosInString() - 1);
-                        textData.updateRenderDataStartingFrom(cursor.getPosInString() - 1);
-                        cursor.backward();
+                        textData.deleteChar(textData.cursor.getPosInString() - 1);
+                        textData.updateRenderDataStartingFrom(textData.cursor.getPosInString() - 1);
+                        textData.cursor.backward();
                     }
                     break;
                     case SDL_KeyCode::SDLK_DELETE: {
-                        textData.deleteChar(cursor.getPosInString());
-                        textData.updateRenderDataStartingFrom(cursor.getPosInString());
+                        textData.deleteChar(textData.cursor.getPosInString());
+                        textData.updateRenderDataStartingFrom(textData.cursor.getPosInString());
                     }
                     break;
                     default:
@@ -106,10 +103,10 @@ int main()
                 }
                 break; // end of case SDL::KEYDOWN
                 case SDL_TEXTINPUT:
-                            textData.insertChar(cursor.getPosInString(), e.text.text[0]);
+                            textData.insertChar(textData.cursor.getPosInString(), e.text.text[0]);
                             assert(strlen(e.text.text)==1); // this should be true ig
-                            textData.updateRenderDataStartingFrom(cursor.getPosInString());
-                            cursor.forward();
+                            textData.updateRenderDataStartingFrom(textData.cursor.getPosInString());
+                            textData.cursor.forward();
                     break;
                 case SDL_WINDOWEVENT: {
                     switch (e.window.event)
@@ -148,6 +145,10 @@ int main()
             //      LOG("current textBuffer:{}",textData.textBuffer);
             // LOG("current cursor on {} which is
             // {}",cursor.getPosInString(),textData.textBuffer[cursor.getPosInString()]);
+
+            //per frame updates
+            cursor_shader.setUniformInt("counter",++counter);
+
             window.clearScreen();
             input::Mouse::Update();
             input::Keyboard::Update();
@@ -156,7 +157,7 @@ int main()
             textData.font.texture->bind();
             textData.render();
             cursor_shader.bind();
-            cursor.render();
+            textData.cursor.render();
             window.swapbuffers();
         }
     }

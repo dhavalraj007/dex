@@ -3,8 +3,11 @@
 #include <array>
 
 #include "glad/glad.h"
+#include"TextData.h"
 
-Cursor::Cursor(const TextData &textData) : textDataRef(textData)
+Cursor::Cursor(const TextData &textData)
+    : textDataRef(textData),
+      posInPlane(0,textDataRef.font.fontGeometry.getMetrics().descenderY)
 {
     cursorHeight = textData.lineHeight;
 
@@ -49,8 +52,6 @@ Cursor::Cursor(const TextData &textData) : textDataRef(textData)
     CHECK_GL_ERROR;
     glBindVertexArray(0);
     CHECK_GL_ERROR;
-
-    update();
 }
 
 void Cursor::update()
