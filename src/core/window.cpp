@@ -48,7 +48,6 @@ namespace core
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
         m_Context = SDL_GL_CreateContext(m_Window);
-
         gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
         std::cout << std::format("vendor:{} , \nRenderer:{},\nVersion:{} \nShading Language Version:{}",
@@ -99,9 +98,9 @@ namespace core
                 switch (e.window.event)
                 {
                 case SDL_WINDOWEVENT_RESIZED: {
-                    SDL_GetWindowSize(m_Window, &m_props.w, &m_props.h);
+                    m_props.w = e.window.data1, m_props.h = e.window.data2;
                     m_props.aspectRatio = float(m_props.w) / m_props.h;
-                    glViewport(0, 0, m_props.w, m_props.h);
+                 //   glViewport(0, 0, m_props.w, m_props.h);
                     break;
                 }
                 default:

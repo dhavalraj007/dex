@@ -34,7 +34,6 @@ struct TextData
     double fontSize;
     double fontScale;
     double lineHeight;
-    Cursor cursor;
 
     TextData();
 

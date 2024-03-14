@@ -12,10 +12,10 @@ void TextData::render()
 
 
 TextData::TextData()
-    : font("../MouldyCheeseRegular-WyMWG.ttf"), fontSize(30),
+    : textBuffer("\n"),  //\n is compulsory
+      font("../MouldyCheeseRegular-WyMWG.ttf"), fontSize(30),
       fontScale(1.0 / (font.fontGeometry.getMetrics().ascenderY - font.fontGeometry.getMetrics().descenderY)),
-      lineHeight(fontScale * font.fontGeometry.getMetrics().lineHeight),
-      cursor(*this)
+      lineHeight(fontScale * font.fontGeometry.getMetrics().lineHeight)
 {
     const int defaultNumVerts = 300;
     vertexData.reserve(defaultNumVerts);

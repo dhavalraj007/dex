@@ -6,6 +6,8 @@
 #include <filesystem>
 
 #include "glad/glad.h"
+#include "helpers.h"
+#include "log.h"
 #include "stb_image.h"
 #include "stb_image_write.h"
 
@@ -54,44 +56,44 @@ Texture::~Texture()
 void Texture::setMagFilter(TextureFiltering filter)
 {
     specs.MagFilter = filter;
-    glActiveTexture(GL_TEXTURE0 + m_TexUnit);
-    glBindTexture(GL_TEXTURE_2D, m_Id); // MCLONE_CHECK_GL_ERROR;
+    glActiveTexture(GL_TEXTURE0 + m_TexUnit);CHECK_GL_ERROR;
+    glBindTexture(GL_TEXTURE_2D, m_Id); CHECK_GL_ERROR;
     switch (specs.MagFilter)
     {
     case TextureFiltering::Nearest:
         break;
     case TextureFiltering::Linear:
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // MCLONE_CHECK_GL_ERROR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); CHECK_GL_ERROR
         break;
     default:
         break;
     }
-    glBindTexture(GL_TEXTURE_2D, 0); // MCLONE_CHECK_GL_ERROR;
+    glBindTexture(GL_TEXTURE_2D, 0); CHECK_GL_ERROR;
 }
 
 void Texture::setMinFilter(TextureFiltering filter)
 {
     specs.MinFilter = filter;
     glActiveTexture(GL_TEXTURE0 + m_TexUnit);
-    glBindTexture(GL_TEXTURE_2D, m_Id); // MCLONE_CHECK_GL_ERROR;
+    glBindTexture(GL_TEXTURE_2D, m_Id);  CHECK_GL_ERROR;
     switch (specs.MinFilter)
     {
     case TextureFiltering::Nearest:
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR); // MCLONE_CHECK_GL_ERROR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);CHECK_GL_ERROR;
         break;
     case TextureFiltering::Linear:
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // MCLONE_CHECK_GL_ERROR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); CHECK_GL_ERROR;
         break;
     default:
         break;
     }
-    glBindTexture(GL_TEXTURE_2D, 0); // MCLONE_CHECK_GL_ERROR;
+    glBindTexture(GL_TEXTURE_2D, 0); CHECK_GL_ERROR;
 }
 
 void Texture::bind() const
 {
-    glActiveTexture(GL_TEXTURE0 + m_TexUnit);
-    glBindTexture(GL_TEXTURE_2D, m_Id); // MCLONE_CHECK_GL_ERROR;
+    glActiveTexture(GL_TEXTURE0 + m_TexUnit); CHECK_GL_ERROR;
+    glBindTexture(GL_TEXTURE_2D, m_Id);  CHECK_GL_ERROR;
 }
 
 void Texture::unbind()
@@ -103,6 +105,7 @@ void Texture::LoadTexture(const unsigned char *data)
 {
     if (!data)
     {
+        LOG("couldnt create texxture! \ndata is nullptr! using checkers instead");
         data = new unsigned char[4 * 4 * 3]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                             0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
                                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -112,18 +115,19 @@ void Texture::LoadTexture(const unsigned char *data)
         specs.ChannelFormat = GL_RGB;
     }
 
-    glGenTextures(1, &m_Id); // MCLONE_CHECK_GL_ERROR;
-    glActiveTexture(GL_TEXTURE0 + m_TexUnit);
-    glBindTexture(GL_TEXTURE_2D, m_Id); // MCLONE_CHECK_GL_ERROR;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 5);
+    glGenTextures(1, &m_Id); CHECK_GL_ERROR;
+    glActiveTexture(GL_TEXTURE0 + m_TexUnit);CHECK_GL_ERROR;
+    glBindTexture(GL_TEXTURE_2D, m_Id); CHECK_GL_ERROR;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 5);CHECK_GL_ERROR;
 
     glTexImage2D(GL_TEXTURE_2D, 0, specs.ChannelFormat, specs.Width, specs.Height, 0, specs.ChannelFormat,
                  GL_UNSIGNED_BYTE,
-                 data); // MCLONE_CHECK_GL_ERROR;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 5);
-    glGenerateMipmap(GL_TEXTURE_2D);
+                 data); CHECK_GL_ERROR;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 5);CHECK_GL_ERROR;
+    glGenerateMipmap(GL_TEXTURE_2D);CHECK_GL_ERROR;
     setMagFilter(specs.MagFilter);
     setMinFilter(specs.MinFilter);
     // MCLONE_TRACE("Loaded {}-Channel Texture :{}", specs.NumOfChannels, specs.Path);
     glBindTexture(GL_TEXTURE_2D, 0);
+    CHECK_GL_ERROR;
 }
